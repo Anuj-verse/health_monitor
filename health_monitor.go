@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"os"
 	
 )
 
@@ -17,7 +18,7 @@ type res struct {
 
 
 func sendAlert(message string) {
-	webhookURL := "https://discord.com/api/webhooks/1469363388743155996/pB4J2FC6E3fyMwOGlZXdKFDlrX6cw38pD2kv54Wqy4jXvdI7UbYZ-bHkfNVjKa1IipN0"
+	webhookURL := os.Getenv("WEBHOOK_URL")
 
 	payload := map[string]string{"content": message}
 	jsondata, _ := json.Marshal(payload)
