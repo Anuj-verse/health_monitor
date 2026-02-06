@@ -2,7 +2,11 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"net/http"
+	"bytes"
+	"encoding/json"
+	
 )
 
 type res struct {
@@ -12,8 +16,21 @@ type res struct {
 		}
 
 
+func sendAlert(message string) {
+	webhookURL := "https://discord.com/api/webhooks/1469363388743155996/pB4J2FC6E3fyMwOGlZXdKFDlrX6cw38pD2kv54Wqy4jXvdI7UbYZ-bHkfNVjKa1IipN0"
+
+	payload := map[string]string{"content": message}
+	jsondata, _ := json.Marshal(payload)
+
+	http.Post(webhookURL, "application/json", bytes.NewBuffer(jsondata))
+}
+
 func checkHealth(url string, ch chan<- res){
-    resp, err := http.Get(url)
+	client := http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+    resp, err := client.Get(url)
     if err != nil {
         ch <- res{url: url, err: err}
         return 
@@ -49,7 +66,9 @@ func main(){
 		for i:=0; i<len(ex); i++ {
 			result := <- ch
 			if result.err != nil {
-				fmt.Printf("Error checking %s: %v\n", result.url, result.err)
+				Alert := fmt.Sprintf("Error checking %s: %v\n", result.url, result.err)
+				fmt.Println(Alert)
+				sendAlert(Alert)
 			} else {
 				fmt.Printf("URL: %s, Status Code: %d\n", result.url, result.statusCode)
 			}
